@@ -77,6 +77,7 @@ class ArticlesController extends AbstractController
             'form' => $form->createView(),
             'article' => $article,
             'commentaires' => $commentaires,
-        ]);
+        ])
+        ;
     }
 }

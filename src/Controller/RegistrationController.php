@@ -19,8 +19,10 @@ class RegistrationController extends AbstractController
      */
     public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, UsersAuthenticator $authenticator): Response
     {
+        // construire le form /build the form
         $user = new Users();
         $form = $this->createForm(RegistrationFormType::class, $user);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -31,12 +33,14 @@ class RegistrationController extends AbstractController
                     $form->get('plainPassword')->getData()
                 )
             );
+            $user->addRole("ROLE_USER");
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
 
             // do anything else you need here, like send an email
+            $this->addFlash('success', 'Votre compte à bien été enregistré.');
 
             return $guardHandler->authenticateUserAndHandleSuccess(
                 $user,

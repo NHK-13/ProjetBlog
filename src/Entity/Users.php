@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UsersRepository")
@@ -20,7 +21,9 @@ class Users implements UserInterface
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=180, unique=true)
+     * @ORM\Column(name="email", type="string", length=180, unique=true)
+     * @Assert\Email(strict=true, message="Le format de l'email est incorrect")
+     * @Assert\Email( checkMX=true, message="Pas de serveur mail trouvé pour ce domaine")
      */
     private $email;
 
@@ -73,11 +76,14 @@ class Users implements UserInterface
      */
     public function getRoles(): array
     {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        if (empty($this->roles)) {
+            return ['ROLE_USER'];
+        }
+        return $this->roles;
+    }
 
-        return array_unique($roles);
+    function addRole($role) {
+        $this->roles[] = $role;
     }
 
     public function setRoles(array $roles): self
